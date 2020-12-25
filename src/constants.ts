@@ -1,4 +1,4 @@
-export const EXTENSION_NAME: string = "My fakesharper";
+export const EXTENSION_NAME: string = "fakesharper";
 export const INSPECTION_FILENAME: string = "inspectcode.xml";
 export const DUPFINDER_FILENAME: string = "dupfinder.xml";
 export const JB_COMMAND: string = "jb";
