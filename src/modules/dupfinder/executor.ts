@@ -5,17 +5,18 @@ import { DUPFINDER_FILENAME, EXTENSION_NAME, DUPFINDER_COMMAND } from '../../con
 import { selectSolutionFile } from '../../utils/workspace';
 import { DupfinderTreeDataProvider } from './tree';
 import { parsefile } from './parser';
+import { findProjectFile } from '../../utils';
 
 export class DupfinderExecutor {
 	constructor(
 		private readonly output: vscode.OutputChannel,
 		private readonly statusBarItem: vscode.StatusBarItem,
 		private readonly dataProvider: DupfinderTreeDataProvider
-	) { }
+	) {}
 
 	private showStatusBarItem() {
-		this.statusBarItem.text = "$(sync~spin) Dupfinder";
-		this.statusBarItem.tooltip = "Dupfinder command is running";
+		this.statusBarItem.text = '$(sync~spin) Dupfinder';
+		this.statusBarItem.tooltip = 'Dupfinder command is running';
 		this.statusBarItem.command = `${EXTENSION_NAME}.showoutput`;
 		this.statusBarItem.show();
 	}
@@ -27,21 +28,21 @@ export class DupfinderExecutor {
 		this.statusBarItem.hide();
 	}
 
-	private executeDupfinder(filePath: string, xmlPath: string) {
+	private executeDupfinder(filePath: string, xmlPath: string, options: string[] = []) {
 		this.output.appendLine(`Dupfinder command is running for '${filePath}'...`);
 
 		const wd: string = path.dirname(filePath);
 
-		const cp = spawn(DUPFINDER_COMMAND, [filePath, `--output=${xmlPath}`], {
+		const cp = spawn(DUPFINDER_COMMAND, [filePath, `--output=${xmlPath}`, ...options], {
 			cwd: wd,
-			shell: true
+			shell: true,
 		});
 
-		cp.stdin?.addListener('data', message => this.output.append(message.toString()));
-		cp.stdout?.addListener('data', message => this.output.append(message.toString()));
-		cp.stderr?.addListener('data', message => this.output.append(message.toString()));
+		cp.stdin?.addListener('data', (message) => this.output.append(message.toString()));
+		cp.stdout?.addListener('data', (message) => this.output.append(message.toString()));
+		cp.stderr?.addListener('data', (message) => this.output.append(message.toString()));
 
-		cp.on('exit', code => {
+		cp.on('exit', (code) => {
 			this.hideStatusBarItem();
 			this.output.appendLine('Fnished Dupfinder command.');
 
@@ -63,17 +64,26 @@ export class DupfinderExecutor {
 		});
 	}
 
-	public run(): void {
-		selectSolutionFile(filePath => {
-			if (!filePath) {
-				vscode.window.showWarningMessage(`Not found any '*.sln' file.`);
-				return;
+	public run(file?: string) {
+		if (file) {
+			const projFile = findProjectFile(file);
+			if (projFile) {
+				this.showStatusBarItem();
+				const xmlPath = path.join(path.dirname(projFile), DUPFINDER_FILENAME);
+				this.executeDupfinder(projFile, xmlPath);
 			}
+		} else {
+			selectSolutionFile((filePath) => {
+				if (!filePath) {
+					vscode.window.showWarningMessage(`Not found any '*.sln' file.`);
+					return;
+				}
 
-			const xmlPath = path.join(path.dirname(filePath), DUPFINDER_FILENAME);
+				const xmlPath = path.join(path.dirname(filePath), DUPFINDER_FILENAME);
 
-			this.showStatusBarItem();
-			this.executeDupfinder(filePath, xmlPath);
-		});
+				this.showStatusBarItem();
+				this.executeDupfinder(filePath, xmlPath);
+			});
+		}
 	}
 }
