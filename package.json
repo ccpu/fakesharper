@@ -32,6 +32,8 @@
 		"onCommand:fakesharper.cleandiagnostics",
 		"onCommand:fakesharper.cleanalldiagnostics",
 		"onCommand:fakesharper.cleanupcode",
+		"onCommand:fakesharper.cleanupCurrentFile",
+		"onCommand:fakesharper.inspectCurrentFile",
 		"onCommand:fakesharper.reloaddiagnostics"
 	],
 	"main": "./out/extension.js",
@@ -39,7 +41,7 @@
 		"commands": [
 			{
 				"command": "fakesharper.inspectcode",
-				"title": "Inspect Code",
+				"title": "Inspect Project Code",
 				"category": "fakesharper"
 			},
 			{
@@ -54,7 +56,17 @@
 			},
 			{
 				"command": "fakesharper.cleanupcode",
-				"title": "Cleanup Code",
+				"title": "Cleanup Project Code",
+				"category": "fakesharper"
+			},
+			{
+				"command": "fakesharper.cleanupCurrentFile",
+				"title": "Cleanup Current File",
+				"category": "fakesharper"
+			},
+			{
+				"command": "fakesharper.inspectCurrentFile",
+				"title": "Inspect Current File",
 				"category": "fakesharper"
 			},
 			{
@@ -117,7 +129,87 @@
 					"when": "view == dupfinder",
 					"group": "inspectcode"
 				}
+			],
+			"editor/context": [
+				{
+					"when": "resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.cleanupCurrentFile",
+					"group": "2_fakesharper@1"
+				},
+				{
+					"when": "resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.inspectCurrentFile",
+					"group": "2_fakesharper@2"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.cleanalldiagnostics",
+					"group": "2_fakesharper@7"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.reloaddiagnostics",
+					"group": "2_fakesharper@9"
+				}
+			],
+			"explorer/context": [
+				{
+					"when": "resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.cleanupCurrentFile",
+					"group": "2_fakesharper@1"
+				},
+				{
+					"when": "resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.inspectCurrentFile",
+					"group": "2_fakesharper@2"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.cleanupcode",
+					"group": "2_fakesharper@3"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.inspectcode",
+					"group": "2_fakesharper@4"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.dupfinder.run",
+					"group": "2_fakesharper@5"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.dupfinder.clean",
+					"group": "2_fakesharper@6"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.cleanalldiagnostics",
+					"group": "2_fakesharper@7"
+				},
+				{
+					"when": "resourceExtname == .csproj || resourceExtname == .sln || resourceExtname == .cs || resourceExtname == .fs",
+					"command": "fakesharper.reloaddiagnostics",
+					"group": "2_fakesharper@9"
+				}
 			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "fakesharper",
+			"properties": {
+				"fakesharper.cleanupOnSave": {
+					"type": "boolean",
+					"default": false,
+					"description": "When enabled will cleanup code on save."
+				},
+				"fakesharper.inspectcodeOnSave": {
+					"type": "boolean",
+					"default": false,
+					"description": "When enabled will cleanup code on save."
+				}
+			}
 		}
 	},
 	"scripts": {
@@ -143,5 +235,10 @@
 	},
 	"dependencies": {
 		"fast-xml-parser": "^3.16.0"
+	},
+	"__metadata": {
+		"id": "8c7b3c7a-9422-436f-9572-cc012e144877",
+		"publisherDisplayName": "fakesharper",
+		"publisherId": "0f641873-9305-4157-8f0b-36886fce4719"
 	}
 }
